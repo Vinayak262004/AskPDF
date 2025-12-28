@@ -1,4 +1,4 @@
-# src/api.py
+
 
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from pathlib import Path
@@ -11,10 +11,10 @@ from src.vectorstore import (
     embed_texts,
     build_faiss_index,
     save_faiss_index,
-    load_faiss_index,   # <-- make sure this exists
-    search,             # <-- search(index, query, k) or similar
+    load_faiss_index,   
+    search,             
 )
-from src.rag import answer_with_llm   # this will use `search` + LLM
+from src.rag import answer_with_llm   
 
 
 app = FastAPI()
@@ -25,8 +25,7 @@ def root():
     return {"status": "API is running!"}
 
 
-# --------- 1) /upload-pdf ----------
-# src/api.py
+
 
 @app.post("/upload-pdf")
 async def upload_pdf(file: UploadFile = File(...)):
@@ -45,8 +44,8 @@ async def upload_pdf(file: UploadFile = File(...)):
     vectors = embed_texts(chunks)
     index = build_faiss_index(vectors)
 
-    # ✅ this now matches the updated vectorstore.save_faiss_index
-    save_faiss_index(index)  # or save_faiss_index(index, "data/index.faiss")
+
+    save_faiss_index(index)  
 
     return {
         "message": "PDF processed and FAISS index created!",
@@ -55,7 +54,6 @@ async def upload_pdf(file: UploadFile = File(...)):
 
 
 
-# --------- 2) /ask ----------
 
 class Question(BaseModel):
     question: str
@@ -71,20 +69,19 @@ def format_context(context):
     """
     formatted = []
     for rank, ctx in enumerate(context, start=1):
-        # Handle several possible shapes to avoid crashes:
-        # 1) ctx is already a dict
+        
         if isinstance(ctx, dict):
             idx = ctx.get("index")
             dist = ctx.get("distance")
             text = ctx.get("text") or ctx.get("page_content") or ""
-        # 2) ctx is a LangChain Document
+        
         elif hasattr(ctx, "page_content"):
             idx = getattr(ctx, "index", None)
             dist = getattr(ctx, "distance", None)
             text = ctx.page_content
-        # 3) ctx is a tuple like (doc, score) or (score, text)
+        
         elif isinstance(ctx, (list, tuple)) and len(ctx) >= 2:
-            # very defensive: try to guess
+            
             first, second = ctx[0], ctx[1]
             idx = None
             dist = float(second) if isinstance(second, (float, int)) else None
@@ -97,7 +94,7 @@ def format_context(context):
                 "rank": rank,
                 "index": idx,
                 "distance": float(dist) if dist is not None else None,
-                "text": text[:800],   # trim for UI
+                "text": text[:800],  
             }
         )
     return formatted
@@ -106,21 +103,21 @@ def format_context(context):
 def ask_json(payload: Question):
     question = payload.question
     
-    # RAG pipeline still runs, but we ignore context for UI
+   
     answer, context = answer_with_llm(question, k=3)
 
-    # return only clean answer
+    
     return {
         "question": question,
         "answer": answer
     }
 
 
-# --------- CORS ----------
+
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],     # frontend on localhost:8501
+    allow_origins=["*"],     
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
