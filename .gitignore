@@ -1,0 +1,23 @@
+# virtual environment
+.venv/
+venv/
+
+# python cache
+__pycache__/
+*.pyc
+
+# environment variables
+.env
+
+# uploads / data
+uploads/
+*.pdf
+
+# vector store (if generated locally)
+faiss_index/
+index.faiss
+index.pkl
+
+# OS
+.DS_Store
+data/
