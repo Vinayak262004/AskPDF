@@ -1,4 +1,4 @@
-# src/loader.py
+
 from pathlib import Path
 import sys
 
@@ -21,11 +21,11 @@ def main(argv):
         print(f"File not found: {path}")
         return 1
 
-    # 1. Extract pages
+  
     pages = extract_text_from_pdf(path)
     print(f"Loaded {len(pages)} pages from {path.name}.")
 
-    # 2. Join + chunk
+   
     text = "\n\n".join(pages)
     chunks = chunk_text_tokens(text, max_tokens=300, overlap=80)
 
@@ -36,11 +36,11 @@ def main(argv):
     else:
         print("(No chunks created; check PDF content.)")
 
-    # 3. Save chunks to disk for later search
+
     save_chunks(chunks)
     print("Saved chunks to data/chunks.json")
 
-    # 4. Embed & build FAISS index
+
     print("Embedding chunks...")
     vectors = embed_texts(chunks)
     print(f"Embeddings shape: {vectors.shape}")
@@ -48,7 +48,7 @@ def main(argv):
     print("Building FAISS index...")
     index = build_faiss_index(vectors)
 
-    # 5. Save FAISS index
+
     save_faiss_index(index)
     print("FAISS index created and saved as data/faiss.index")
 
