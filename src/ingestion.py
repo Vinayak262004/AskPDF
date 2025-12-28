@@ -1,12 +1,4 @@
-"""
-Day 2: Robust PDF Ingestion + Token-based Chunking
 
-Provides:
-- extract_text_from_pdf(): multi-method extraction
-- detect_scanned_pdf(): checks if OCR is needed
-- ocr_extract(): performs OCR
-- chunk_text_tokens(): token-based chunking using HF tokenizer
-"""
 
 from pathlib import Path
 import pdfplumber
@@ -18,9 +10,7 @@ import io
 from transformers import AutoTokenizer
 
 
-# -----------------------------
-#   PDF SCANNED DETECTION
-# -----------------------------
+
 def detect_scanned_pdf(path: Path) -> bool:
     """
     Heuristic: if pdfplumber can't detect text on first page, assume scanned.
@@ -34,15 +24,13 @@ def detect_scanned_pdf(path: Path) -> bool:
         return False
 
 
-# -----------------------------
-#   OCR EXTRACTION
-# -----------------------------
+
 def ocr_extract(path: Path):
     """
     Converts each PDF page to an image then OCRs it.
     Slower but works for scanned PDFs.
     """
-    import pdfplumber  # re-import inside if needed
+    import pdfplumber  
 
     pages = []
     with pdfplumber.open(path) as pdf:
@@ -53,9 +41,7 @@ def ocr_extract(path: Path):
     return pages
 
 
-# -----------------------------
-#   GENERAL EXTRACTION LOGIC
-# -----------------------------
+
 def extract_text_from_pdf(path: Path):
     """
     Multi-step extraction:
@@ -66,12 +52,12 @@ def extract_text_from_pdf(path: Path):
     """
     path = Path(path)
 
-    # 0. Check scanned PDF
+
     if detect_scanned_pdf(path):
         print("[INFO] Scanned PDF detected — using OCR...")
         return ocr_extract(path)
 
-    # 1. pdfplumber
+
     try:
         pages = []
         with pdfplumber.open(path) as pdf:
@@ -82,7 +68,7 @@ def extract_text_from_pdf(path: Path):
     except:
         pass
 
-    # 2. PyPDF2
+ 
     try:
         reader = PdfReader(str(path))
         pages = [p.extract_text() or "" for p in reader.pages]
@@ -91,7 +77,7 @@ def extract_text_from_pdf(path: Path):
     except:
         pass
 
-    # 3. pdfminer
+ 
     try:
         text = pdfminer_extract(str(path))
         if text:
@@ -102,9 +88,7 @@ def extract_text_from_pdf(path: Path):
     return [""]
 
 
-# -----------------------------
-#   TOKEN-BASED CHUNKING
-# -----------------------------
+
 tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
 
 def chunk_text_tokens(text: str, max_tokens=300, overlap=80):
