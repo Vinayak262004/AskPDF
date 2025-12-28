@@ -3,16 +3,8 @@ import requests
 from io import BytesIO
 import base64
 
-API_URL = "http://127.0.0.1:8000"
-
-# -----------------------------------------------------------
-# Streamlit Page Config
-# -----------------------------------------------------------
+API_URL = "http://127.0.0.1:8000"-
 st.set_page_config(page_title="Ask Your PDF", layout="wide", initial_sidebar_state="collapsed")
-
-# -----------------------------------------------------------
-# Custom CSS (Dark Theme + Chat Bubbles + Sticky Input)
-# -----------------------------------------------------------
 st.markdown("""
     <style>
 
@@ -109,18 +101,12 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# -----------------------------------------------------------
-# Session State
-# -----------------------------------------------------------
 if "messages" not in st.session_state:
     st.session_state.messages = []
 
 if "pdf_bytes" not in st.session_state:
     st.session_state.pdf_bytes = None
 
-# -----------------------------------------------------------
-# LAYOUT → Two Columns: PDF Preview (left) + Chat (right)
-# -----------------------------------------------------------
 left_col, right_col = st.columns([1, 2])
 
 with left_col:
@@ -130,8 +116,6 @@ with left_col:
 
     if uploaded_pdf:
         st.session_state.pdf_bytes = uploaded_pdf.getvalue()
-
-        # Display PDF inside Streamlit
         base64_pdf = base64.b64encode(uploaded_pdf.getvalue()).decode('utf-8')
         pdf_display = f'<iframe src="data:application/pdf;base64,{base64_pdf}" width="100%" height="750px"></iframe>'
         st.markdown(pdf_display, unsafe_allow_html=True)
@@ -148,7 +132,6 @@ with left_col:
 with right_col:
     st.subheader("💬 Chat With Your PDF")
 
-    # Display chat messages
     for msg in st.session_state.messages:
         avatar = "https://cdn-icons-png.flaticon.com/512/847/847969.png" if msg["role"] == "user" else "https://cdn-icons-png.flaticon.com/512/4712/4712104.png"
         bubble_class = "user-bubble" if msg["role"] == "user" else "ai-bubble"
@@ -180,7 +163,7 @@ with right_col:
             if response.ok:
                 answer = response.json().get("answer", "No answer returned.")
             else:
-                answer = "⚠️ Backend error."
+                answer = "Backend error."
 
             st.session_state.messages.append({"role": "assistant", "content": answer})
             st.rerun()
